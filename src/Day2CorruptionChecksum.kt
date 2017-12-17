@@ -1,5 +1,5 @@
 fun main(args: Array<String>) {
-    println(corruptionChecksum("1640\t590\t93\t958\t73\t1263\t1405\t1363\t737\t712\t1501\t390\t68\t1554\t959\t79\n" +
+    val checksumInput = "1640\t590\t93\t958\t73\t1263\t1405\t1363\t737\t712\t1501\t390\t68\t1554\t959\t79\n" +
             "4209\t128\t131\t2379\t2568\t2784\t2133\t145\t3618\t1274\t3875\t158\t1506\t3455\t1621\t3799\n" +
             "206\t1951\t2502\t2697\t2997\t74\t76\t78\t1534\t81\t2775\t2059\t3026\t77\t2600\t3067\n" +
             "373\t1661\t94\t102\t2219\t1967\t1856\t417\t1594\t75\t100\t2251\t2200\t1825\t1291\t1021\n" +
@@ -14,7 +14,9 @@ fun main(args: Array<String>) {
             "3114\t688\t3110\t334\t1921\t153\t4083\t131\t2234\t3556\t3573\t3764\t127\t919\t3293\t104\n" +
             "1008\t78\t1196\t607\t135\t1409\t296\t475\t915\t157\t1419\t1304\t153\t423\t163\t704\n" +
             "235\t4935\t4249\t3316\t1202\t221\t1835\t380\t249\t1108\t1922\t5607\t4255\t238\t211\t3973\n" +
-            "1738\t207\t179\t137\t226\t907\t1468\t1341\t1582\t1430\t851\t213\t393\t1727\t1389\t632", "\t"))
+            "1738\t207\t179\t137\t226\t907\t1468\t1341\t1582\t1430\t851\t213\t393\t1727\t1389\t632"
+    println(corruptionChecksum(checksumInput, "\t"))
+    println(corruptionChecksumPart2(checksumInput, "\t"))
 }
 
 fun corruptionChecksum(input: String, delimiter: String):Int {
@@ -22,5 +24,26 @@ fun corruptionChecksum(input: String, delimiter: String):Int {
             .filter { it.isNotBlank() }
             .map { it.split(delimiter).map { it.toInt() } }
             .map { it.max()!!.minus(it.min()!!) }
+            .sum()
+}
+
+fun corruptionChecksumPart2(input: String, delimiter: String):Int {
+    return input.split("\n")
+            .filter { it.isNotBlank() }
+            .map { it.split(delimiter).map { it.toInt() } }
+            .map { it.mapIndexed { index, i ->
+                (index + 1 until it.size)
+                        .map { nextIndex ->
+                            when {
+                                i > it[nextIndex] && i % it[nextIndex] == 0 -> i / it[nextIndex]
+                                it[nextIndex] > i && it[nextIndex] % i == 0 -> it[nextIndex] / i
+                                else -> 0
+                            }
+                        }
+                        .filter { it != 0 }
+                        .sum()
+                }
+            }
+            .flatten()
             .sum()
 }
