@@ -15,35 +15,35 @@ fun main(args: Array<String>) {
             "1008\t78\t1196\t607\t135\t1409\t296\t475\t915\t157\t1419\t1304\t153\t423\t163\t704\n" +
             "235\t4935\t4249\t3316\t1202\t221\t1835\t380\t249\t1108\t1922\t5607\t4255\t238\t211\t3973\n" +
             "1738\t207\t179\t137\t226\t907\t1468\t1341\t1582\t1430\t851\t213\t393\t1727\t1389\t632"
-    println(corruptionChecksum(checksumInput, "\t"))
-    println(corruptionChecksumPart2(checksumInput, "\t"))
+    println(corruptionChecksum(checksumInput))
+    println(corruptionChecksumPart2(checksumInput))
 }
 
-fun corruptionChecksum(input: String, delimiter: String):Int {
-    return input.split("\n")
-            .filter { it.isNotBlank() }
-            .map { it.split(delimiter).map { it.toInt() } }
-            .map { it.max()!!.minus(it.min()!!) }
-            .sum()
+fun corruptionChecksum(input: String):Int {
+    return corruptionChecksumCore(input, {it.max()!!.minus(it.min()!!)})
 }
 
-fun corruptionChecksumPart2(input: String, delimiter: String):Int {
-    return input.split("\n")
-            .filter { it.isNotBlank() }
-            .map { it.split(delimiter).map { it.toInt() } }
-            .map { it.mapIndexed { index, i ->
-                (index + 1 until it.size)
-                        .map { nextIndex ->
-                            when {
-                                i > it[nextIndex] && i % it[nextIndex] == 0 -> i / it[nextIndex]
-                                it[nextIndex] > i && it[nextIndex] % i == 0 -> it[nextIndex] / i
-                                else -> 0
-                            }
+fun corruptionChecksumPart2(input: String):Int {
+    return corruptionChecksumCore(input, {
+        it.mapIndexed { index, i ->
+            (index + 1 until it.size)
+                    .map { nextIndex ->
+                        when {
+                            i > it[nextIndex] && i % it[nextIndex] == 0 -> i / it[nextIndex]
+                            it[nextIndex] > i && it[nextIndex] % i == 0 -> it[nextIndex] / i
+                            else -> 0
                         }
-                        .filter { it != 0 }
-                        .sum()
-                }
-            }
-            .flatten()
+                    }
+                    .filter { it != 0 }
+                    .sum()
+        }.sum()
+    })
+}
+
+fun corruptionChecksumCore(input: String, transform: (List<Int>) -> Int):Int {
+    return input.split("\n")
+            .filter { it.isNotBlank() }
+            .map { it.split("\t").map { it.toInt() } }
+            .map { transform(it) }
             .sum()
 }
